@@ -273,33 +273,24 @@ won't tell you what or why it fixed things.
 :::{tab-item} Simple config
 
 ```ini
-[tool.ruff.lint]
-extend-select = [
-  "B",      # flake8-bugbear
-  "I",      # isort
-  "RUF",    # Ruff-specific
-  "UP",     # pyupgrade
-]
+[tool.ruff]
+show-fixes = true
 ```
 
 :::
 :::{tab-item} Full config
 
 ```ini
-[tool.ruff.lint]
-extend-select = [
+[tool.ruff]
+show-fixes = true
+lint.extend-select = [
   "ARG",    # flake8-unused-arguments
   "B",      # flake8-bugbear
-  "BLE",    # flake8-blind-except
   "C4",     # flake8-comprehensions
-  "DTZ",    # flake8-datetimez
   "EM",     # flake8-errmsg
   "EXE",    # flake8-executable
-  "FA",     # flake8-future-annotations
-  "FLY",    # flynt
   "FURB",   # refurb
   "G",      # flake8-logging-format
-  "I",      # isort
   "ICN",    # flake8-import-conventions
   "ISC",    # flake8-implicit-str-concat
   "LOG",    # flake8-logging
@@ -307,7 +298,6 @@ extend-select = [
   "PD",     # pandas-vet
   "PERF",   # perflint
   "PGH",    # pygrep-hooks
-  "PIE",    # flake8-pie
   "PL",     # pylint
   "PT",     # flake8-pytest-style
   "PTH",    # flake8-use-pathlib
@@ -323,13 +313,12 @@ extend-select = [
   "TC",     # flake8-type-checking
   "TRY",    # tryceratops
   "UP",     # pyupgrade
-  "YTT",    # flake8-2020
 ]
-ignore = [
+lint.ignore = [
   "PLR09",    # Too many <...>
   "PLR2004",  # Magic value used in comparison
 ]
-typing-modules = ["mypackage._compat.typing"]
+lint.typing-modules = ["mypackage._compat.typing"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["T20"]
@@ -372,8 +361,7 @@ typing-modules = ["mypackage._compat.typing"]
 Ruff [provides dozens of rule sets](https://beta.ruff.rs/docs/rules/); you can
 select what you want from these. Like Flake8, plugins match by whole letter
 sequences (with the special exception of pylint's "PL" shortcut), then you can
-also include leading or whole error codes. Codes starting with 9 must be
-selected explicitly, with at least the letters followed by a 9. You can also
+also include leading or whole error codes. You can also
 ignore certain error codes via `ignore`. You can also set codes per paths to
 ignore in `per-file-ignores`. If you don't like certain auto-fixes, you can
 disable auto-fixing for specific error codes via `unfixable`.
@@ -394,7 +382,7 @@ If you don't use a `[project]` table (older setuptools or Poetry), then you
 should also set:
 
 ```ini
-target-version = "py39"
+target-version = "py310"
 ```
 
 This selects the minimum version you want to target (primarily for `"UP"` and
@@ -407,11 +395,10 @@ Here are some good error codes to enable on most (but not all!) projects:
   stood the test of time. Not required if you use `extend-select` (`W` not
   needed if you use a formatter)
 - `B`: This finds patterns that are very bug-prone. {rr}`RF101`
-- `I`: This sorts your includes. There are multiple benefits, such as smaller
-  diffs, fewer conflicts, a way to auto-inject `__future__` imports, and easier
-  for readers to tell what's built-in, third-party, and local. It has a lot of
-  configuration options, but defaults to a Black-compatible style.
-  {rr}`RF102`
+- `I`: This sorts your includes (on by default since Ruff 0.16). Select this
+  group only if you also want `I002`, which can auto-inject imports, such as
+  `from __future__ import annotations`; it needs the
+  `lint.isort.required-imports` setting.
 - `ARG`: This looks for unused arguments. You might need to `# noqa: ARG001`
   occasionally, but it's overall pretty useful.
 - `C4`: This looks for places that could use comprehensions, and can autofix
@@ -433,7 +420,9 @@ Here are some good error codes to enable on most (but not all!) projects:
 - `RUF`: Codes specific to Ruff, including removing noqa's that aren't used.
 - `T20`: Disallow `print` in your code (built on the assumption that it's a
   common debugging tool).
-- `UP`: Upgrade old Python syntax to your `target-version`. {rr}`RF103`
+- `UP`: Upgrade old Python syntax to your `target-version`. Ruff 0.16 turns most
+  of these on by default; select the group to also get the few remaining rules,
+  such as `UP015` (redundant open modes).
 - `FURB`: From the refurb tool, a collection of helpful cleanups.
 - `PYI`: Typing related checks
 
